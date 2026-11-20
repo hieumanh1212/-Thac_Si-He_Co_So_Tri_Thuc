@@ -150,7 +150,9 @@ function chuanHoaTriThuc(kb) {
       nguonThamKhao: catChuoi(d.reference, 300)
     })),
     luat: layMang(nguon.rules).slice(0, 500).map(r => ({
-      ma: r.id, ten: catChuoi(r.name, 200), neu: layMang(r.premises), thi: r.conclusion, cf: Number(r.cf) || 0
+      ma: r.id, ten: catChuoi(r.name, 200), neu: layMang(r.premises), thi: r.conclusion, cf: Number(r.cf) || 0,
+      // Mô tả luật có ghi "Căn cứ: QĐ .../QĐ-BYT" -> để AI dẫn được văn bản gốc khi trả lời
+      moTaVaCanCu: catChuoi(r.description, 400)
     }))
   };
 }

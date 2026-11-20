@@ -93,7 +93,7 @@ class LichSuHoiAIController {
   _taoMuc(muc) {
     const loai = LOAI_LICH_SU_HOI_AI[muc.loai] || { ten: muc.loai, icon: "fa-robot", lop: "" };
     const nhanLoi = muc.thanhCong ? "" : `<span class="ai-hist-badge is-error"><i class="fa-solid fa-triangle-exclamation"></i> Lỗi</span>`;
-    const thamChieu = muc.thamChieu.map(ma => `<span class="session-code-pill">${thoatHtmlAI(ma)}</span>`).join(" ");
+    const thamChieu = taoHtmlThamChieuAI(muc.thamChieu);
     return `
       <div class="ai-hist-item">
         <div class="ai-hist-head">
@@ -113,7 +113,7 @@ class LichSuHoiAIController {
         <div class="ai-hist-question"><i class="fa-regular fa-circle-question"></i> ${thoatHtmlAI(muc.cauHoi)}</div>
         <details class="ai-hist-answer">
           <summary>${muc.thanhCong ? "Xem câu trả lời của AI" : "Xem chi tiết lỗi"}</summary>
-          <div class="ai-answer-content">${dinhDangTraLoiAI(muc.traLoi)}</div>
+          <div class="ai-answer-content">${dinhDangTraLoiAI(muc.traLoi, muc.thanhCong ? muc.thamChieu : [])}</div>
           ${thamChieu ? `<div class="ai-answer-refs"><span class="ai-muted">Tham chiếu:</span> ${thamChieu}</div>` : ""}
         </details>
       </div>`;

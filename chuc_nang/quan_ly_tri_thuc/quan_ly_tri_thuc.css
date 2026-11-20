@@ -1255,3 +1255,15 @@
   border-color: #0284c7;
   color: #ffffff !important;
 }
+/* Dòng được mở từ liên kết tham chiếu (vd: câu trả lời của Trợ lý AI) */
+tr.kb-row-focus > td {
+  background: rgba(59, 130, 246, 0.12) !important;
+  animation: kbRowFocusPulse 1.6s ease-out 2;
+}
+tr.kb-row-focus > td:first-child {
+  box-shadow: inset 4px 0 0 var(--color-primary);
+}
+@keyframes kbRowFocusPulse {
+  0% { background: rgba(59, 130, 246, 0.35); }
+  100% { background: rgba(59, 130, 246, 0.12); }
+}

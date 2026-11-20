@@ -386,6 +386,12 @@
         dbEngine,
         kbManager
       });
+
+      // Liên kết tham chiếu từ Trợ lý AI: ?phien=PHIEN_... -> mở chi tiết phiên đó
+      const maPhienCanMo = new URLSearchParams(location.search).get("phien");
+      if (maPhienCanMo && /^[A-Za-z0-9_-]{1,60}$/.test(maPhienCanMo)) {
+        window.historyController.moPhienTheoMa(maPhienCanMo);
+      }
     });
   </script>
 </body>

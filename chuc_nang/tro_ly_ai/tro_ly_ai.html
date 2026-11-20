@@ -67,22 +67,15 @@
   <!-- ==================== MAIN CONTENT ==================== -->
   <main class="main-wrapper ai-page">
 
-    <!-- THANH TRẠNG THÁI: KẾT NỐI AI + HẠN MỨC + CHỌN CHẾ ĐỘ -->
-    <section class="card ai-top-card">
-      <div class="ai-top-row">
-        <div class="ai-mode-tabs" role="tablist">
-          <button type="button" class="ai-mode-tab active" data-mode="chan_doan" role="tab">
-            <i class="fa-solid fa-user-doctor"></i> Chẩn đoán từ mô tả
-          </button>
-          <button type="button" class="ai-mode-tab" data-mode="lich_su" role="tab">
-            <i class="fa-solid fa-clock-rotate-left"></i> Hỏi về lịch sử
-          </button>
-          <button type="button" class="ai-mode-tab" data-mode="tri_thuc" role="tab">
-            <i class="fa-solid fa-book-medical"></i> Tra cứu tri thức
-          </button>
-          <button type="button" class="ai-mode-tab" data-mode="lich_su_hoi" role="tab">
-            <i class="fa-solid fa-list-ul"></i> Lịch sử hỏi AI
-          </button>
+    <!-- HERO: GIỚI THIỆU + TRẠNG THÁI KẾT NỐI AI + HẠN MỨC -->
+    <section class="ai-hero">
+      <div class="ai-hero-row">
+        <div class="ai-hero-main">
+          <div class="ai-hero-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+          <div>
+            <h1 class="ai-hero-title">Trợ lý AI</h1>
+            <p class="ai-hero-sub">AI đọc lời kể và tra cứu dữ liệu giúp bạn. <b>Kết luận chẩn đoán vẫn do động cơ suy diễn và luật sinh quyết định.</b></p>
+          </div>
         </div>
         <div class="ai-top-right">
           <span id="aiStatusPill" class="ai-status-pill ai-status-checking">
@@ -98,14 +91,42 @@
       <div id="aiQuotaWidget" class="ai-quota" hidden></div>
     </section>
 
+    <!-- CHỌN CHẾ ĐỘ: 4 THẺ CÓ MÔ TẢ NGẮN -->
+    <nav class="ai-mode-tabs" role="tablist" aria-label="Chọn chức năng Trợ lý AI">
+      <button type="button" class="ai-mode-tab active is-diag" data-mode="chan_doan" role="tab">
+        <span class="ai-mode-icon"><i class="fa-solid fa-user-doctor"></i></span>
+        <span class="ai-mode-text"><b>Chẩn đoán từ mô tả</b><small>Kể bệnh, AI chọn triệu chứng</small></span>
+      </button>
+      <button type="button" class="ai-mode-tab is-hist" data-mode="lich_su" role="tab">
+        <span class="ai-mode-icon"><i class="fa-solid fa-clock-rotate-left"></i></span>
+        <span class="ai-mode-text"><b>Hỏi về lịch sử</b><small>Thống kê các phiên đã chẩn đoán</small></span>
+      </button>
+      <button type="button" class="ai-mode-tab is-kb" data-mode="tri_thuc" role="tab">
+        <span class="ai-mode-icon"><i class="fa-solid fa-book-medical"></i></span>
+        <span class="ai-mode-text"><b>Tra cứu tri thức</b><small>Luật, bệnh, triệu chứng</small></span>
+      </button>
+      <button type="button" class="ai-mode-tab is-log" data-mode="lich_su_hoi" role="tab">
+        <span class="ai-mode-icon"><i class="fa-solid fa-list-ul"></i></span>
+        <span class="ai-mode-text"><b>Lịch sử hỏi AI</b><small>Xem lại các lần đã hỏi</small></span>
+      </button>
+    </nav>
+
     <!-- ==================== CHẾ ĐỘ 1: CHẨN ĐOÁN TỪ MÔ TẢ ==================== -->
     <div id="aiModeDiagnosis" class="ai-mode-pane">
 
     <!-- KHỐI NHẬP LIỆU -->
     <section class="card ai-input-card">
+      <!-- QUY TRÌNH 4 BƯỚC: giúp người xem hiểu AI làm gì, luật sinh làm gì -->
+      <ol class="ai-flow" aria-label="Quy trình chẩn đoán với AI">
+        <li><span class="ai-flow-num">1</span><span><b>Bạn mô tả</b><small>Lời kể tự nhiên</small></span></li>
+        <li class="is-ai"><span class="ai-flow-num">2</span><span><b>AI trích triệu chứng</b><small>Chỉ chọn mã có trong tri thức</small></span></li>
+        <li class="is-engine"><span class="ai-flow-num">3</span><span><b>Động cơ suy diễn</b><small>Luật sinh + MYCIN CF</small></span></li>
+        <li><span class="ai-flow-num">4</span><span><b>Bạn kiểm tra & lưu</b><small>Gắn nhãn "Sinh từ AI"</small></span></li>
+      </ol>
+
       <div class="ai-input-head">
         <div>
-          <h2><i class="fa-solid fa-wand-magic-sparkles"></i> Mô tả tình trạng bệnh nhân</h2>
+          <h2><i class="fa-solid fa-pen-to-square"></i> Mô tả tình trạng bệnh nhân</h2>
           <p class="ai-muted">Mô tả tự nhiên như khi kể bệnh với bác sĩ: thời gian bị, nhiệt độ, các biểu hiện kèm theo.
             AI sẽ suy ra các triệu chứng <b>có sẵn trong cơ sở tri thức</b> để động cơ suy diễn sinh chẩn đoán.</p>
         </div>
@@ -156,7 +177,7 @@
         <!-- CỘT TRÁI: TRIỆU CHỨNG AI TRÍCH XUẤT -->
         <div class="card">
           <div class="ai-card-title">
-            <span><i class="fa-solid fa-list-check"></i> Bước 1. Triệu chứng AI trích xuất</span>
+            <span class="ai-step-title"><span class="ai-step-badge is-ai">1</span> Triệu chứng AI trích xuất</span>
             <span class="ai-tag-ai"><i class="fa-solid fa-robot"></i> Do AI sinh ra</span>
           </div>
           <p id="aiSummaryText" class="ai-summary"></p>
@@ -175,7 +196,7 @@
         <!-- CỘT PHẢI: KẾT QUẢ ĐỘNG CƠ SUY DIỄN -->
         <div class="card">
           <div class="ai-card-title">
-            <span><i class="fa-solid fa-gears"></i> Bước 2. Kết quả động cơ suy diễn (MYCIN)</span>
+            <span class="ai-step-title"><span class="ai-step-badge is-engine">2</span> Kết quả động cơ suy diễn (MYCIN)</span>
             <span class="ai-tag-engine"><i class="fa-solid fa-scale-balanced"></i> Do luật sinh tính</span>
           </div>
           <div id="aiDiagnosisList"></div>
@@ -186,7 +207,7 @@
       <!-- DIỄN GIẢI CỦA AI -->
       <div class="card ai-explain-card">
         <div class="ai-card-title">
-          <span><i class="fa-solid fa-comment-medical"></i> Bước 3. AI diễn giải kết quả</span>
+          <span class="ai-step-title"><span class="ai-step-badge is-ai">3</span> AI diễn giải kết quả</span>
           <span class="ai-tag-ai"><i class="fa-solid fa-robot"></i> Do AI sinh ra</span>
         </div>
         <div id="aiExplanationText" class="ai-explanation"></div>
@@ -220,12 +241,14 @@
         </div>
 
         <div class="ai-ask-input-row">
+          <i class="fa-solid fa-magnifying-glass ai-ask-input-icon" aria-hidden="true"></i>
           <textarea id="aiAskInput" class="form-control ai-ask-input" rows="2" maxlength="1000"
             placeholder="Nhập câu hỏi..."></textarea>
           <button id="btnAiAsk" class="btn-primary" disabled>
-            <i class="fa-solid fa-magnifying-glass"></i> Hỏi AI
+            <i class="fa-solid fa-paper-plane"></i> Hỏi AI
           </button>
         </div>
+        <p class="ai-ask-hint"><kbd>Enter</kbd> để gửi • <kbd>Shift</kbd> + <kbd>Enter</kbd> để xuống dòng</p>
 
         <div class="ai-examples">
           <span class="ai-muted"><i class="fa-regular fa-lightbulb"></i> Gợi ý:</span>
@@ -311,6 +334,14 @@
       if (KHUNG_THEO_CHE_DO[cheDoHopLe] === "aiModeChat") hoiDap.chonCheDo(cheDoHopLe);
       if (cheDoHopLe === "lich_su_hoi") lichSuHoi.taiDuLieu();
       history.replaceState(null, "", `#${cheDoHopLe}`);
+      try { sessionStorage.setItem("TRO_LY_AI_CHE_DO", cheDoHopLe); } catch (e) { /* bỏ qua */ }
+    }
+
+    // Ưu tiên chế độ trên URL; nếu không có thì dùng chế độ đang mở lần trước (vd: quay lại từ bản ghi tham chiếu)
+    function layCheDoBanDau() {
+      const tuUrl = location.hash.replace("#", "");
+      if (KHUNG_THEO_CHE_DO[tuUrl]) return tuUrl;
+      try { return sessionStorage.getItem("TRO_LY_AI_CHE_DO") || ""; } catch (e) { return ""; }
     }
 
     document.addEventListener("DOMContentLoaded", async () => {
@@ -353,7 +384,7 @@
       document.querySelectorAll(".ai-mode-tab").forEach(tab => {
         tab.addEventListener("click", () => chonCheDoAI(tab.dataset.mode, cacController));
       });
-      chonCheDoAI(location.hash.replace("#", ""), cacController);
+      chonCheDoAI(layCheDoBanDau(), cacController);
 
       const trangThai = await dichVuAI.kiemTraTrangThai();
       chanDoan.apDungTrangThaiAI(trangThai);

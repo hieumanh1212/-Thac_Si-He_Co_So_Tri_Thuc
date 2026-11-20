@@ -330,11 +330,15 @@
         return liveCase;
       }
 
+      // Triệu chứng tại thời điểm suy diễn gần nhất (dùng để dựng lại kết quả khi quay lại trang)
+      let trieuChungDaSuyDien = null;
+
       const diagnosisController = new DiagnosisController({
         kbManager,
         forwardEngine,
         backwardEngine,
         onInferenceComplete: (inferenceResult, selectedSymptoms) => {
+          trieuChungDaSuyDien = inferenceResult ? { ...(selectedSymptoms || {}) } : null;
           if (inferenceResult && Object.keys(selectedSymptoms || {}).length > 0) {
             saveLiveDiagnosisCase(inferenceResult, selectedSymptoms);
           }
@@ -368,6 +372,55 @@
           }
         });
       });
+
+      /* --- GIỮ TRẠNG THÁI LÀM VIỆC KHI CHUYỂN TAB (ĐỒ THỊ, LỊCH SỬ...) RỒI QUAY LẠI --- */
+      const KHOA_TRANG_THAI_CHAN_DOAN = "CHAN_DOAN_TRANG_THAI_LAM_VIEC";
+
+      function luuTrangThaiLamViec() {
+        const trangThai = {
+          trieuChung: diagnosisController.currentSelectedSymptoms || {},
+          trieuChungDaSuyDien,
+          tab: diagnosisController.currentInferTab,
+          benhMucTieu: diagnosisController.currentBackwardTargetDiseaseId,
+          thuGonTrai: diagnosisController.isLeftCollapsed
+        };
+        try { sessionStorage.setItem(KHOA_TRANG_THAI_CHAN_DOAN, JSON.stringify(trangThai)); } catch (e) {}
+      }
+
+      function docTrangThaiLamViec() {
+        try { return JSON.parse(sessionStorage.getItem(KHOA_TRANG_THAI_CHAN_DOAN) || "null"); } catch (e) { return null; }
+      }
+
+      // Chạy lại suy diễn để dựng kết quả, KHÔNG gọi onInferenceComplete (tránh lưu trùng phiên vào Lịch sử)
+      function dungLaiKetQuaKhongLuu(trangThai) {
+        const goiLaiGoc = diagnosisController.onInferenceComplete;
+        diagnosisController.onInferenceComplete = null;
+        try {
+          diagnosisController.currentInferTab = trangThai.tab || "forward";
+          diagnosisController.currentBackwardTargetDiseaseId = trangThai.benhMucTieu || null;
+          diagnosisController.currentSelectedSymptoms = { ...trangThai.trieuChungDaSuyDien };
+          diagnosisController.runInference(true);
+          trieuChungDaSuyDien = { ...trangThai.trieuChungDaSuyDien };
+        } finally {
+          diagnosisController.onInferenceComplete = goiLaiGoc;
+        }
+      }
+
+      function khoiPhucTrangThaiLamViec() {
+        const trangThai = docTrangThaiLamViec();
+        if (!trangThai) {
+          diagnosisController.renderAll();
+          return;
+        }
+        if (trangThai.trieuChungDaSuyDien) dungLaiKetQuaKhongLuu(trangThai);
+        diagnosisController.currentSelectedSymptoms = { ...(trangThai.trieuChung || {}) };
+        diagnosisController.renderAll();
+        const coTrieuChung = Object.keys(diagnosisController.currentSelectedSymptoms).length > 0;
+        if (!trangThai.trieuChungDaSuyDien && coTrieuChung) diagnosisController.renderPreLoadedState();
+        if (trangThai.thuGonTrai) diagnosisController.toggleLeftSection(true);
+      }
+
+      window.addEventListener("pagehide", luuTrangThaiLamViec);
 
       kbManager.onUpdate((updatedKB) => {
         forwardEngine.setKnowledgeBase(updatedKB);
@@ -418,7 +471,8 @@
             diagnosisController.renderAll();
           }
         } else {
-          diagnosisController.renderAll();
+          // Quay lại từ tab khác: khôi phục triệu chứng & kết quả đang làm dở
+          khoiPhucTrangThaiLamViec();
         }
       }
 

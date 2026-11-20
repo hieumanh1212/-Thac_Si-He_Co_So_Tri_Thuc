@@ -622,6 +622,54 @@
         });
       });
 
+      /* --- MỞ BẢN GHI THEO MÃ TRÊN URL (vd: ?ma=R22 từ câu trả lời của Trợ lý AI) --- */
+      const BANG_THEO_LOAI = [
+        { khoa: "rules", subtab: "rules-table", tbody: "rulesTableBody", ten: "luật" },
+        { khoa: "diseases", subtab: "diseases-table", tbody: "diseasesTableBody", ten: "bệnh" },
+        { khoa: "symptoms", subtab: "symptoms-table", tbody: "symptomsTableBody", ten: "triệu chứng" },
+        { khoa: "symptomGroups", subtab: "groups-table", tbody: "groupsTableBody", ten: "nhóm triệu chứng" }
+      ];
+
+      function timBangChuaMa(kb, ma) {
+        const maHoa = ma.toUpperCase();
+        return BANG_THEO_LOAI.find(bang => (kb[bang.khoa] || []).some(muc => String(muc.id).toUpperCase() === maHoa));
+      }
+
+      function toSangDongTheoMa(bang, ma) {
+        const tbody = document.getElementById(bang.tbody);
+        const dong = tbody && [...tbody.querySelectorAll("tr")].find(tr => {
+          const oDau = tr.querySelector("td");
+          return oDau && oDau.textContent.trim().toUpperCase() === ma.toUpperCase();
+        });
+        if (!dong) return;
+        dong.classList.add("kb-row-focus");
+        dong.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+
+      async function moBanGhiTheoMa(ma) {
+        const kb = await kbManager.lamMoiTuCSDL();
+        const bang = timBangChuaMa(kb, ma);
+        if (!bang) {
+          ThongBao.canhBao(`Không tìm thấy mã "${ma}" trong cơ sở tri thức hiện tại.`, "Không có bản ghi");
+          return;
+        }
+        document.querySelector(`.kb-subtab-btn[data-subtab="${bang.subtab}"]`)?.click();
+        const oTimKiem = document.getElementById("kbSearchInput");
+        if (oTimKiem) {
+          oTimKiem.value = ma;
+          oTimKiem.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+        toSangDongTheoMa(bang, ma);
+        // Bảng có thể được vẽ lại khi đồng bộ CSDL xong -> tô sáng lại
+        kbManager.onUpdate(() => setTimeout(() => toSangDongTheoMa(bang, ma), 0));
+        ThongBao.thongTin(`Đang hiển thị ${bang.ten} ${ma}. Xóa ô tìm kiếm để xem toàn bộ danh sách.`, "Mở bản ghi");
+      }
+
+      const maCanMo = new URLSearchParams(location.search).get("ma");
+      if (maCanMo && /^[A-Za-z0-9_-]{1,60}$/.test(maCanMo)) {
+        moBanGhiTheoMa(maCanMo);
+      }
+
       // Đóng modal
       document.querySelectorAll("[data-close]").forEach(btn => {
         btn.addEventListener("click", (e) => {

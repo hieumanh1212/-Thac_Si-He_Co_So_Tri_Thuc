@@ -23,7 +23,22 @@ class HistoryController {
 
     this.initElements();
     this.bindEvents();
-    this.initData();
+    this.sanSang = this.initData();
+  }
+
+  // Mở thẳng một phiên theo mã (vd: ?phien=PHIEN_... từ câu trả lời của Trợ lý AI)
+  async moPhienTheoMa(maPhien) {
+    await this.sanSang;
+    const session = this.allSessions.find(s => String(s.id).toUpperCase() === String(maPhien).toUpperCase());
+    if (!session) {
+      window.ThongBao.canhBao(`Không tìm thấy phiên "${maPhien}" (có thể đã bị xóa).`, "Không có bản ghi");
+      return;
+    }
+    if (this.filterSearch) {
+      this.filterSearch.value = session.id;
+      this.applyFilters();
+    }
+    this.openDetailModal(session);
   }
 
   initElements() {

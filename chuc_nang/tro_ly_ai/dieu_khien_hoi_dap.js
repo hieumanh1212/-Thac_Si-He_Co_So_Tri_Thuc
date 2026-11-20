@@ -38,8 +38,49 @@ const CAU_HINH_CHE_DO_HOI_DAP = {
   }
 };
 
+const KHOA_KET_QUA_HOI_DAP = "TRO_LY_AI_KET_QUA_HOI_DAP";
+
+/* --- LIÊN KẾT MÃ THAM CHIẾU -> BẢN GHI GỐC --- */
+const MA_THAM_CHIEU_HOP_LE = /^[A-Za-z0-9_-]{1,60}$/;
+
+// Mã phiên (PHIEN_...) -> trang Lịch sử chẩn đoán; mã luật/bệnh/triệu chứng/nhóm -> trang Quản lý tri thức
+function taoUrlThamChieuAI(ma) {
+  const maMaHoa = encodeURIComponent(ma);
+  return /^PHIEN_/i.test(ma)
+    ? `../lich_su_chan_doan/lich_su_chan_doan.html?phien=${maMaHoa}`
+    : `../quan_ly_tri_thuc/quan_ly_tri_thuc.html?ma=${maMaHoa}`;
+}
+
+function taoLienKetThamChieuAI(ma) {
+  const noiDen = /^PHIEN_/i.test(ma) ? "Lịch sử chẩn đoán" : "Quản lý tri thức";
+  return `<a class="session-code-pill ai-ref-link" href="${taoUrlThamChieuAI(ma)}" title="Mở bản ghi ${thoatHtmlAI(ma)} tại trang ${noiDen}">${thoatHtmlAI(ma)}</a>`;
+}
+
+function taoHtmlThamChieuAI(thamChieu) {
+  return (thamChieu || []).map(ma => {
+    const chuoi = String(ma).trim();
+    return MA_THAM_CHIEU_HOP_LE.test(chuoi)
+      ? taoLienKetThamChieuAI(chuoi)
+      : `<span class="session-code-pill">${thoatHtmlAI(chuoi)}</span>`;
+  }).join(" ");
+}
+
+// Biến các mã tham chiếu xuất hiện trong nội dung trả lời (đã thoát HTML) thành liên kết
+function ganLienKetMaTrongVanBan(html, thamChieu) {
+  const cacMa = [...new Set((thamChieu || []).map(m => String(m).trim()))].filter(m => MA_THAM_CHIEU_HOP_LE.test(m));
+  if (cacMa.length === 0) return html;
+  cacMa.sort((a, b) => b.length - a.length);
+  const mau = new RegExp(`(?<![A-Za-z0-9_-])(${cacMa.join("|")})(?![A-Za-z0-9_-])`, "g");
+  return html.replace(mau, (ma) => taoLienKetThamChieuAI(ma));
+}
+
 // Định dạng an toàn: thoát HTML trước, sau đó chỉ hỗ trợ **đậm** và gạch đầu dòng "- " / "* "
-function dinhDangTraLoiAI(vanBan) {
+// thamChieu (tùy chọn): các mã trong câu trả lời được biến thành liên kết tới bản ghi gốc
+function dinhDangTraLoiAI(vanBan, thamChieu) {
+  return ganLienKetMaTrongVanBan(dinhDangVanBanAI(vanBan), thamChieu);
+}
+
+function dinhDangVanBanAI(vanBan) {
   const cacDong = thoatHtmlAI(vanBan).split(/\r?\n/);
   const html = [];
   let dangTrongDanhSach = false;
@@ -64,7 +105,20 @@ class HoiDapAIController {
     this.aiSanSang = false;
     this.dangGui = false;
     // Câu trả lời gần nhất của từng chế độ: { cauHoi, traLoi, thamChieu, loi }
-    this.ketQua = { lich_su: null, tri_thuc: null };
+    // Giữ trong sessionStorage để bấm sang bản ghi tham chiếu rồi quay lại vẫn còn
+    this.ketQua = { lich_su: null, tri_thuc: null, ...this._docKetQuaDaLuu() };
+  }
+
+  _docKetQuaDaLuu() {
+    try {
+      return JSON.parse(sessionStorage.getItem(KHOA_KET_QUA_HOI_DAP) || "{}") || {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  _luuKetQua() {
+    try { sessionStorage.setItem(KHOA_KET_QUA_HOI_DAP, JSON.stringify(this.ketQua)); } catch (e) { /* bỏ qua */ }
   }
 
   init() {
@@ -141,6 +195,7 @@ class HoiDapAIController {
     } catch (e) {
       this.ketQua[cheDo] = { cauHoi, loi: e.message };
     } finally {
+      this._luuKetQua();
       this._datDangGui(false);
     }
   }
@@ -172,15 +227,15 @@ class HoiDapAIController {
   }
 
   _taoHtmlTraLoi(ketQua) {
-    const thamChieu = ketQua.thamChieu.map(ma => `<span class="session-code-pill">${thoatHtmlAI(ma)}</span>`).join(" ");
+    const thamChieu = taoHtmlThamChieuAI(ketQua.thamChieu);
     return `
       <div class="ai-answer">
         <div class="ai-answer-head">
           <span class="ai-answer-question"><i class="fa-regular fa-circle-question"></i> ${thoatHtmlAI(ketQua.cauHoi)}</span>
           <span class="ai-tag-ai"><i class="fa-solid fa-robot"></i> Do AI sinh ra</span>
         </div>
-        <div class="ai-answer-content">${dinhDangTraLoiAI(ketQua.traLoi)}</div>
-        ${thamChieu ? `<div class="ai-answer-refs"><span class="ai-muted">Tham chiếu:</span> ${thamChieu}</div>` : ""}
+        <div class="ai-answer-content">${dinhDangTraLoiAI(ketQua.traLoi, ketQua.thamChieu)}</div>
+        ${thamChieu ? `<div class="ai-answer-refs"><span class="ai-muted">Tham chiếu (bấm để mở bản ghi):</span> ${thamChieu}</div>` : ""}
         <div class="ai-answer-footnote"><i class="fa-solid fa-circle-info"></i> ${CAU_HINH_CHE_DO_HOI_DAP[this.cheDo].chuThich}</div>
       </div>`;
   }

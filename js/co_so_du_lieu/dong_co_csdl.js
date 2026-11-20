@@ -262,7 +262,10 @@ class DatabaseEngine {
     }
   }
 
-  async saveInferenceSession(inputSymptoms, results, traceLogs) {
+  /**
+   * @param {Object} thongTinNguon - { nguon: "AI" | "ENGINE", aiMeta } (tùy chọn)
+   */
+  async saveInferenceSession(inputSymptoms, results, traceLogs, thongTinNguon = {}) {
     const sessionId = "PHIEN_" + Date.now();
     const topResult = results && results.length > 0 ? results[0] : null;
 
@@ -278,7 +281,8 @@ class DatabaseEngine {
       results: results || [],
       resultsSummary: (results || []).map(r => ({ diseaseId: r.diseaseId, name: r.diseaseName, cf: r.finalCF })),
       traceLogs: traceLogs || [],
-      traceStepCount: (traceLogs || []).length
+      traceStepCount: (traceLogs || []).length,
+      ...thongTinNguon
     };
 
     if (this.isServerMode) {

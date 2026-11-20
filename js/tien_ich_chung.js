@@ -3,36 +3,14 @@
  * Tự động đồng bộ chế độ sáng / tối và cung cấp Notification góc phải màn hình cho toàn bộ hệ thống
  */
 
+// Hệ thống CHỈ dùng giao diện sáng. Thuộc tính data-theme="light" được đặt sẵn trên thẻ <html>
+// của mọi trang để trình duyệt vẽ màu sáng ngay từ đầu (không bị nháy màu tối khi chuyển trang).
+// Hàm này chỉ đảm bảo thuộc tính luôn tồn tại và xóa lựa chọn giao diện tối cũ (nếu có).
 function khoiTaoTheme() {
-  const savedTheme = localStorage.getItem("MED_EXPERT_THEME") || "dark";
-  apDungTheme(savedTheme);
-
-  const btnThemeToggle = document.getElementById("btnThemeToggle");
-  if (btnThemeToggle && !btnThemeToggle.dataset.themeBound) {
-    btnThemeToggle.dataset.themeBound = "true";
-    btnThemeToggle.addEventListener("click", () => {
-      const isCurrentlyLight = document.documentElement.getAttribute("data-theme") === "light";
-      apDungTheme(isCurrentlyLight ? "dark" : "light");
-    });
-  }
-}
-
-function apDungTheme(theme) {
-  const themeToggleIcon = document.getElementById("themeToggleIcon");
-  if (theme === "light") {
-    document.documentElement.setAttribute("data-theme", "light");
-    if (themeToggleIcon) {
-      themeToggleIcon.className = "fa-solid fa-sun";
-      themeToggleIcon.style.color = "#f59e0b";
-    }
-  } else {
-    document.documentElement.removeAttribute("data-theme");
-    if (themeToggleIcon) {
-      themeToggleIcon.className = "fa-solid fa-moon";
-      themeToggleIcon.style.color = "";
-    }
-  }
-  localStorage.setItem("MED_EXPERT_THEME", theme);
+  document.documentElement.setAttribute("data-theme", "light");
+  try {
+    localStorage.removeItem("MED_EXPERT_THEME");
+  } catch (e) { /* trình duyệt chặn lưu trữ: bỏ qua */ }
 }
 
 // ============================================================================
@@ -523,5 +501,5 @@ function kiemTraVaBaoVeFontAwesome() {
 kiemTraVaBaoVeFontAwesome();
 
 // Khởi chạy khi DOM sẵn sàng
-document.addEventListener("DOMContentLoaded", khoiTaoTheme);
+khoiTaoTheme();
 

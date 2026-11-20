@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trợ Lý AI Chẩn Đoán - Hệ Cơ Sở Tri Thức</title>
+
+  <!-- FontAwesome Icons & CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../../css/tong_hop.css">
+</head>
+<body>
+
+  <!-- ==================== APP HEADER ==================== -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand-wrapper">
+        <a href="../../index.html" style="text-decoration: none; display: flex; align-items: center; gap: 0.85rem;">
+          <div class="brand-icon">
+            <i class="fa-solid fa-brain"></i>
+          </div>
+          <div class="brand-text">
+            <h1>HỆ CƠ SỞ TRI THỨC Y TẾ</h1>
+            <p>Trợ lý AI trích xuất triệu chứng & diễn giải kết quả suy diễn</p>
+          </div>
+        </a>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <nav class="nav-tabs">
+          <a href="../../index.html" class="nav-btn">
+            <i class="fa-solid fa-house"></i> Trang chủ
+          </a>
+          <a href="../chan_doan/chan_doan.html" class="nav-btn">
+            <i class="fa-solid fa-stethoscope"></i> Chẩn đoán
+          </a>
+          <a href="tro_ly_ai.html" class="nav-btn active">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Trợ lý AI
+          </a>
+          <a href="../do_thi_rpg/do_thi_rpg.html" class="nav-btn">
+            <i class="fa-solid fa-project-diagram"></i> Đồ thị RPG
+          </a>
+          <a href="../do_thi_fpg/do_thi_fpg.html" class="nav-btn">
+            <i class="fa-solid fa-diagram-successor"></i> Đồ thị FPG
+          </a>
+          <a href="../quan_ly_tri_thuc/quan_ly_tri_thuc.html" class="nav-btn">
+            <i class="fa-solid fa-database"></i> Quản lý Tri thức
+          </a>
+          <a href="../quan_tri_csdl/quan_tri_csdl.html" class="nav-btn">
+            <i class="fa-solid fa-server"></i> Quản trị CSDL
+          </a>
+          <a href="../ca_kiem_thu/ca_kiem_thu.html" class="nav-btn">
+            <i class="fa-solid fa-vial-circle-check"></i> Ca kiểm thử
+          </a>
+          <a href="../ly_thuyet/ly_thuyet.html" class="nav-btn">
+            <i class="fa-solid fa-book-medical"></i> Lý thuyết
+          </a>
+          <a href="../lich_su_chan_doan/lich_su_chan_doan.html" class="nav-btn">
+            <i class="fa-solid fa-clock-rotate-left"></i> Lịch sử
+          </a>
+        </nav>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="main-wrapper ai-page">
+
+    <!-- THANH TRẠNG THÁI: KẾT NỐI AI + HẠN MỨC + CHỌN CHẾ ĐỘ -->
+    <section class="card ai-top-card">
+      <div class="ai-top-row">
+        <div class="ai-mode-tabs" role="tablist">
+          <button type="button" class="ai-mode-tab active" data-mode="chan_doan" role="tab">
+            <i class="fa-solid fa-user-doctor"></i> Chẩn đoán từ mô tả
+          </button>
+          <button type="button" class="ai-mode-tab" data-mode="lich_su" role="tab">
+            <i class="fa-solid fa-clock-rotate-left"></i> Hỏi về lịch sử
+          </button>
+          <button type="button" class="ai-mode-tab" data-mode="tri_thuc" role="tab">
+            <i class="fa-solid fa-book-medical"></i> Tra cứu tri thức
+          </button>
+          <button type="button" class="ai-mode-tab" data-mode="lich_su_hoi" role="tab">
+            <i class="fa-solid fa-list-ul"></i> Lịch sử hỏi AI
+          </button>
+        </div>
+        <div class="ai-top-right">
+          <span id="aiStatusPill" class="ai-status-pill ai-status-checking">
+            <i class="fa-solid fa-circle-notch fa-spin"></i> Đang kiểm tra kết nối AI...
+          </span>
+          <button type="button" id="btnAiQuotaToggle" class="ai-quota-toggle" hidden
+            title="Hiện / ẩn hạn mức AI (dành cho người vận hành)" aria-pressed="false">
+            <i class="fa-solid fa-gauge-high"></i>
+            <span class="ai-quota-dot"></span>
+          </button>
+        </div>
+      </div>
+      <div id="aiQuotaWidget" class="ai-quota" hidden></div>
+    </section>
+
+    <!-- ==================== CHẾ ĐỘ 1: CHẨN ĐOÁN TỪ MÔ TẢ ==================== -->
+    <div id="aiModeDiagnosis" class="ai-mode-pane">
+
+    <!-- KHỐI NHẬP LIỆU -->
+    <section class="card ai-input-card">
+      <div class="ai-input-head">
+        <div>
+          <h2><i class="fa-solid fa-wand-magic-sparkles"></i> Mô tả tình trạng bệnh nhân</h2>
+          <p class="ai-muted">Mô tả tự nhiên như khi kể bệnh với bác sĩ: thời gian bị, nhiệt độ, các biểu hiện kèm theo.
+            AI sẽ suy ra các triệu chứng <b>có sẵn trong cơ sở tri thức</b> để động cơ suy diễn sinh chẩn đoán.</p>
+        </div>
+      </div>
+
+      <textarea id="aiQuestionInput" class="form-control ai-textarea" maxlength="2000"
+        placeholder="Ví dụ: Bệnh nhân nam 28 tuổi, sốt 39,5 độ đã 3 ngày, kêu nhức sau hai hốc mắt, mỏi khắp người, sáng nay thấy lấm tấm chấm đỏ ở cẳng tay..."></textarea>
+
+      <div class="ai-input-footer">
+        <div class="ai-examples">
+          <span class="ai-muted"><i class="fa-regular fa-lightbulb"></i> Ví dụ nhanh:</span>
+          <button type="button" class="ai-example-chip" data-example="Bệnh nhân nam 28 tuổi, sốt 39,5 độ đã 3 ngày uống hạ sốt không đỡ, kêu nhức sau hai hốc mắt, đau đầu vùng trán, mỏi khắp người, sáng nay thấy lấm tấm chấm đỏ ở cẳng tay.">Sốt cao + chấm đỏ dưới da</button>
+          <button type="button" class="ai-example-chip" data-example="Bé 3 tuổi sốt khoảng 38 độ, bỏ bú, quấy khóc khi ăn, trong miệng có mấy vết loét, lòng bàn tay và bàn chân nổi nốt phỏng nước, hay nôn trớ.">Trẻ nổi bóng nước</button>
+          <button type="button" class="ai-example-chip" data-example="Mấy hôm nay ho khan nhiều, nuốt nước bọt thấy rát cổ, mũi tắc phải thở bằng miệng, chảy nước mũi trong, người hâm hấp sốt.">Ho, đau họng, sổ mũi</button>
+        </div>
+        <div class="ai-input-actions">
+          <span id="aiCharCount" class="ai-muted">0 / 2000</span>
+          <button id="btnAiAnalyze" class="btn-primary" disabled>
+            <i class="fa-solid fa-microchip"></i> Phân tích bằng AI
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TRẠNG THÁI ĐANG XỬ LÝ -->
+    <section id="aiLoading" class="card ai-loading" hidden>
+      <i class="fa-solid fa-circle-notch fa-spin"></i>
+      <span id="aiLoadingText">AI đang đọc lời kể và trích xuất triệu chứng...</span>
+    </section>
+
+    <!-- KẾT QUẢ -->
+    <section id="aiResultArea" hidden>
+
+      <!-- CẢNH BÁO KẾT QUẢ AI -->
+      <div class="ai-result-warning">
+        <div class="ai-result-warning-icon"><i class="fa-solid fa-robot"></i></div>
+        <div>
+          <h3>ĐÂY LÀ LẦN CHẨN ĐOÁN ĐƯỢC SINH TỪ LỜI KỂ QUA AI. CẦN KIỂM SOÁT KỸ.</h3>
+          <ul>
+            <li>AI có thể <b>bỏ sót</b>, <b>hiểu sai</b> hoặc <b>gán sai mức độ (CF)</b> cho triệu chứng. Hãy đối chiếu cột "Căn cứ trong lời kể".</li>
+            <li>Kết luận bên dưới được tính bởi <b>động cơ suy diễn</b> trên các triệu chứng đã trích xuất, nên chỉ đúng khi bước trích xuất đúng.</li>
+            <li>Kết quả <b>không phải chẩn đoán y khoa</b>. Khi có dấu hiệu nặng (khó thở, xuất huyết, li bì, co giật...), hãy đến cơ sở y tế ngay.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="ai-result-grid">
+        <!-- CỘT TRÁI: TRIỆU CHỨNG AI TRÍCH XUẤT -->
+        <div class="card">
+          <div class="ai-card-title">
+            <span><i class="fa-solid fa-list-check"></i> Bước 1. Triệu chứng AI trích xuất</span>
+            <span class="ai-tag-ai"><i class="fa-solid fa-robot"></i> Do AI sinh ra</span>
+          </div>
+          <p id="aiSummaryText" class="ai-summary"></p>
+          <div class="ai-hint">
+            <i class="fa-solid fa-hand-pointer"></i> Bạn có thể chỉnh mức độ hoặc xóa triệu chứng sai, rồi bấm <b>Chạy lại suy diễn</b>.
+          </div>
+          <div id="aiSymptomList" class="ai-symptom-list"></div>
+          <div id="aiUnmatchedBox" class="ai-unmatched" hidden></div>
+          <div class="ai-card-actions">
+            <button id="btnAiRerun" class="btn-secondary">
+              <i class="fa-solid fa-rotate"></i> Chạy lại suy diễn
+            </button>
+          </div>
+        </div>
+
+        <!-- CỘT PHẢI: KẾT QUẢ ĐỘNG CƠ SUY DIỄN -->
+        <div class="card">
+          <div class="ai-card-title">
+            <span><i class="fa-solid fa-gears"></i> Bước 2. Kết quả động cơ suy diễn (MYCIN)</span>
+            <span class="ai-tag-engine"><i class="fa-solid fa-scale-balanced"></i> Do luật sinh tính</span>
+          </div>
+          <div id="aiDiagnosisList"></div>
+          <div id="aiFollowUpBox" class="ai-followup" hidden></div>
+        </div>
+      </div>
+
+      <!-- DIỄN GIẢI CỦA AI -->
+      <div class="card ai-explain-card">
+        <div class="ai-card-title">
+          <span><i class="fa-solid fa-comment-medical"></i> Bước 3. AI diễn giải kết quả</span>
+          <span class="ai-tag-ai"><i class="fa-solid fa-robot"></i> Do AI sinh ra</span>
+        </div>
+        <div id="aiExplanationText" class="ai-explanation"></div>
+      </div>
+
+      <!-- XÁC NHẬN & LƯU -->
+      <div class="card ai-confirm-card">
+        <label class="ai-ack">
+          <input type="checkbox" id="aiAckCheckbox">
+          <span>Tôi đã kiểm tra lại các triệu chứng AI trích xuất và hiểu rằng đây <b>không phải chẩn đoán y khoa</b>.
+            Phiên này sẽ được lưu vào lịch sử với nhãn <b>"Sinh từ AI"</b>.</span>
+        </label>
+        <div class="ai-confirm-actions">
+          <button id="btnAiOpenDiagnosis" class="btn-secondary">
+            <i class="fa-solid fa-stethoscope"></i> Mở trong trang Chẩn đoán
+          </button>
+          <button id="btnAiSave" class="btn-primary" disabled>
+            <i class="fa-solid fa-floppy-disk"></i> Lưu lần chẩn đoán vào lịch sử
+          </button>
+        </div>
+      </div>
+    </section>
+    </div>
+
+    <!-- ==================== CHẾ ĐỘ 2 & 3: HỎI ĐÁP (LỊCH SỬ / TRI THỨC) ==================== -->
+    <div id="aiModeChat" class="ai-mode-pane" hidden>
+      <section class="card ai-ask-card">
+        <div>
+          <h2 class="ai-ask-title"><i id="aiAskIcon" class="fa-solid fa-clock-rotate-left"></i> <span id="aiAskTitle">Hỏi về lịch sử chẩn đoán</span></h2>
+          <p id="aiAskDesc" class="ai-muted"></p>
+        </div>
+
+        <div class="ai-ask-input-row">
+          <textarea id="aiAskInput" class="form-control ai-ask-input" rows="2" maxlength="1000"
+            placeholder="Nhập câu hỏi..."></textarea>
+          <button id="btnAiAsk" class="btn-primary" disabled>
+            <i class="fa-solid fa-magnifying-glass"></i> Hỏi AI
+          </button>
+        </div>
+
+        <div class="ai-examples">
+          <span class="ai-muted"><i class="fa-regular fa-lightbulb"></i> Gợi ý:</span>
+          <div id="aiAskExamples" class="ai-examples"></div>
+        </div>
+
+        <div id="aiAnswerBox" aria-live="polite"></div>
+      </section>
+    </div>
+
+    <!-- ==================== CHẾ ĐỘ 4: LỊCH SỬ HỎI AI ==================== -->
+    <div id="aiModeHistory" class="ai-mode-pane" hidden>
+      <section class="card ai-ask-card">
+        <div class="ai-hist-top">
+          <div>
+            <h2 class="ai-ask-title"><i class="fa-solid fa-list-ul"></i> Lịch sử hỏi AI</h2>
+            <p class="ai-muted">Mọi lần hỏi AI (kể cả lần lỗi) được máy chủ tự động ghi vào bảng <code>lich_su_hoi_ai</code> để xem lại và kiểm soát.</p>
+          </div>
+          <div class="ai-hist-tools">
+            <button id="btnAiHistReload" type="button" class="btn-secondary" title="Tải lại danh sách">
+              <i class="fa-solid fa-rotate"></i> Tải lại
+            </button>
+            <button id="btnAiHistClear" type="button" class="btn-danger" title="Xóa toàn bộ lịch sử hỏi AI">
+              <i class="fa-regular fa-trash-can"></i> Xóa tất cả
+            </button>
+          </div>
+        </div>
+
+        <div class="ai-hist-filters">
+          <select id="aiHistFilterType" class="form-control">
+            <option value="">Tất cả loại câu hỏi</option>
+            <option value="chan_doan">Chẩn đoán từ mô tả</option>
+            <option value="lich_su">Hỏi về lịch sử</option>
+            <option value="tri_thuc">Tra cứu tri thức</option>
+          </select>
+          <input id="aiHistSearch" type="search" class="form-control" placeholder="Tìm trong câu hỏi hoặc câu trả lời...">
+          <span id="aiHistCount" class="ai-muted"></span>
+        </div>
+
+        <div id="aiHistList" class="ai-hist-list"></div>
+      </section>
+    </div>
+  </main>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="app-footer">
+    <p>Hệ Cơ Sở Tri Thức Chẩn Đoán Y Tế & Trực Quan Hóa Mạng Luật RPG • Học phần: Hệ cơ sở tri thức (Thạc sĩ CNTT)</p>
+  </footer>
+
+  <!-- ==================== SCRIPTS ==================== -->
+  <script src="../../js/tien_ich_chung.js"></script>
+  <script src="../../js/co_so_du_lieu/tri_thuc_mac_dinh.js"></script>
+  <script src="../../js/co_so_du_lieu/dong_co_csdl.js"></script>
+  <script src="../../js/dong_co/he_so_tin_cay.js"></script>
+  <script src="../../js/dong_co/bieu_dien_frames.js"></script>
+  <script src="../../js/dong_co/suy_dien_tien.js"></script>
+  <script src="../../js/dong_co/suy_dien_lui.js"></script>
+  <script src="../quan_ly_tri_thuc/mo_hinh_tri_thuc.js"></script>
+  <script src="dich_vu_ai.js"></script>
+  <script src="dieu_khien_tro_ly_ai.js"></script>
+  <script src="dieu_khien_hoi_dap.js"></script>
+  <script src="hien_thi_han_muc.js"></script>
+  <script src="dieu_khien_lich_su_hoi.js"></script>
+
+  <script>
+    // Khung hiển thị của từng chế độ (lich_su & tri_thuc dùng chung khung hỏi đáp)
+    const KHUNG_THEO_CHE_DO = {
+      chan_doan: "aiModeDiagnosis",
+      lich_su: "aiModeChat",
+      tri_thuc: "aiModeChat",
+      lich_su_hoi: "aiModeHistory"
+    };
+
+    // Chuyển giữa 4 chế độ (ghi nhớ trên URL dạng #lich_su_hoi)
+    function chonCheDoAI(cheDo, { hoiDap, lichSuHoi }) {
+      const cheDoHopLe = KHUNG_THEO_CHE_DO[cheDo] ? cheDo : "chan_doan";
+      document.querySelectorAll(".ai-mode-tab").forEach(tab => {
+        tab.classList.toggle("active", tab.dataset.mode === cheDoHopLe);
+      });
+      new Set(Object.values(KHUNG_THEO_CHE_DO)).forEach(id => {
+        document.getElementById(id).hidden = id !== KHUNG_THEO_CHE_DO[cheDoHopLe];
+      });
+      if (KHUNG_THEO_CHE_DO[cheDoHopLe] === "aiModeChat") hoiDap.chonCheDo(cheDoHopLe);
+      if (cheDoHopLe === "lich_su_hoi") lichSuHoi.taiDuLieu();
+      history.replaceState(null, "", `#${cheDoHopLe}`);
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const dbEngine = new DatabaseEngine();
+      try { await dbEngine.init(); } catch (e) {}
+
+      const kbManager = new KnowledgeBaseManager(dbEngine);
+      const dichVuAI = new DichVuAI(dbEngine);
+      const hanMuc = new HienThiHanMucAI(
+        document.getElementById("aiQuotaWidget"),
+        dichVuAI,
+        document.getElementById("btnAiQuotaToggle")
+      );
+      dichVuAI.onHanMuc = (duLieu) => hanMuc.render(duLieu);
+
+      const chanDoan = new TroLyAIController({
+        dbEngine,
+        kbManager,
+        dichVuAI,
+        forwardEngine: new ForwardChainingEngine(kbManager.getKB()),
+        backwardEngine: new BackwardChainingEngine(kbManager.getKB())
+      });
+      const hoiDap = new HoiDapAIController({ dichVuAI, kbManager });
+      const cacController = { hoiDap, lichSuHoi: null };
+      // "Hỏi lại" từ lịch sử: chuyển sang đúng chế độ và điền sẵn câu hỏi
+      cacController.lichSuHoi = new LichSuHoiAIController({
+        dichVuAI,
+        onHoiLai: (loai, cauHoi) => {
+          chonCheDoAI(loai, cacController);
+          if (loai === "chan_doan") chanDoan.datMoTa(cauHoi);
+          else hoiDap.datCauHoi(cauHoi);
+        }
+      });
+
+      kbManager.onUpdate((kb) => chanDoan.capNhatTriThuc(kb));
+      chanDoan.init();
+      hoiDap.init();
+      cacController.lichSuHoi.init();
+
+      document.querySelectorAll(".ai-mode-tab").forEach(tab => {
+        tab.addEventListener("click", () => chonCheDoAI(tab.dataset.mode, cacController));
+      });
+      chonCheDoAI(location.hash.replace("#", ""), cacController);
+
+      const trangThai = await dichVuAI.kiemTraTrangThai();
+      chanDoan.apDungTrangThaiAI(trangThai);
+      hoiDap.apDungTrangThaiAI(trangThai);
+      hanMuc.render(trangThai.hanMuc);
+      hanMuc.batDauTuDongCapNhat();
+    });
+  </script>
+</body>
+</html>

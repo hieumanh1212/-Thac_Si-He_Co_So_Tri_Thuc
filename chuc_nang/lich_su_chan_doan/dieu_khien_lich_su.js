@@ -385,6 +385,7 @@ class HistoryController {
           </td>
           <td>
             <span class="session-code-pill">${session.id}</span>
+            ${this._taoNhanNguonAI(session)}
           </td>
           <td style="max-width: 250px;">
             ${symSummaryHtml}
@@ -548,10 +549,40 @@ class HistoryController {
     }
   }
 
+  // Nhãn nguồn phiên: chỉ hiển thị với phiên sinh từ Trợ lý AI
+  _taoNhanNguonAI(session) {
+    if (!session || session.nguon !== "AI") return "";
+    return `<span class="ai-source-badge" title="Triệu chứng do AI trích xuất từ lời kể. Cần kiểm soát kỹ."><i class="fa-solid fa-robot"></i> Sinh từ AI</span>`;
+  }
+
+  _thoatHtml(giaTri) {
+    const div = document.createElement("div");
+    div.textContent = giaTri === undefined || giaTri === null ? "" : String(giaTri);
+    return div.innerHTML;
+  }
+
+  _hienThiCanhBaoAI(session) {
+    const khung = document.getElementById("modalAiNotice");
+    if (!khung) return;
+    if (!session || session.nguon !== "AI") {
+      khung.hidden = true;
+      return;
+    }
+    const meta = session.aiMeta || {};
+    const nguonAI = [meta.nhaCungCap, meta.model].filter(Boolean).join(" / ") || "không rõ";
+    khung.innerHTML = `
+      <strong><i class="fa-solid fa-robot"></i> Phiên này được sinh từ lời kể qua AI (${this._thoatHtml(nguonAI)}). Cần kiểm soát kỹ.</strong>
+      <div>Triệu chứng do AI trích xuất${meta.daChinhSua ? " và đã được người dùng chỉnh sửa" : ""}; kết luận do động cơ suy diễn tính. Đây không phải chẩn đoán y khoa.</div>
+      ${meta.cauHoi ? `<div class="ai-history-quote">Lời kể gốc: "${this._thoatHtml(meta.cauHoi)}"</div>` : ""}
+      ${meta.dienGiai ? `<div class="ai-history-quote">AI diễn giải: ${this._thoatHtml(meta.dienGiai)}</div>` : ""}`;
+    khung.hidden = false;
+  }
+
   openDetailModal(session) {
     this.currentSelectedSession = session;
     const kb = this.kbManager.getKB();
     const symptomsKB = kb.symptoms || [];
+    this._hienThiCanhBaoAI(session);
 
     if (this.modalSessionId) this.modalSessionId.textContent = session.id;
     if (this.modalSessionTime) {

@@ -10,6 +10,13 @@ const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
 const { DatabaseSync } = require('node:sqlite');
+const { taoBoXuLyAI } = require('./dich_vu_ai/index.js');
+
+// Nạp biến môi trường từ file .env (GEMINI_API_KEY, AI_PROVIDER, ...) nếu có
+const ENV_PATH = path.join(__dirname, '.env');
+if (fs.existsSync(ENV_PATH)) {
+  process.loadEnvFile(ENV_PATH);
+}
 
 const PORT = process.env.PORT || 3000;
 const DB_PATH = path.join(__dirname, 'co_so_du_lieu_y_te.db');
@@ -84,8 +91,16 @@ function parseRequestBody(req) {
   });
 }
 
+// Thông tin nguồn sinh phiên chẩn đoán (ENGINE: người dùng chọn tay | AI: trợ lý AI trích xuất)
+function layThongTinNguon(duLieu) {
+  const nguon = duLieu && duLieu.nguon === 'AI' ? 'AI' : 'ENGINE';
+  return { nguon, aiMeta: nguon === 'AI' ? (duLieu.aiMeta || {}) : null };
+}
+
 // 3. Khởi tạo HTTP Server
-const server = http.createServer(async (req, res) => {
+const xuLyApiAI = taoBoXuLyAI({ sendJSON, parseRequestBody, db });
+
+const xuLyYeuCauGoc = async (req, res) => {
   const parsedUrl = new URL(req.url, `http://${req.headers.host}`);
   const pathname = decodeURIComponent(parsedUrl.pathname);
 
@@ -334,7 +349,8 @@ const server = http.createServer(async (req, res) => {
           topCF: Number(r.he_so_tin_cay_chinh || 0),
           results,
           traceLogs,
-          traceStepCount: traceLogs.length
+          traceStepCount: traceLogs.length,
+          ...layThongTinNguon(details)
         };
       });
 
@@ -353,7 +369,8 @@ const server = http.createServer(async (req, res) => {
       const topCF = Number(session.topCF || 0);
       const detailPayload = {
         results: session.results || session.resultsSummary || [],
-        traceLogs: session.traceLogs || []
+        traceLogs: session.traceLogs || [],
+        ...layThongTinNguon(session)
       };
 
       db.prepare(`
@@ -446,6 +463,29 @@ const server = http.createServer(async (req, res) => {
     const readStream = fs.createReadStream(filePath);
     readStream.pipe(res);
   });
+};
+
+// Chặn truy cập file/thư mục ẩn (.env chứa API key, .git, ...)
+function laDuongDanAn(pathname) {
+  return pathname.split(/[\\/]/).some(doan => doan.startsWith('.') && doan.length > 0);
+}
+
+function docPathname(req) {
+  try {
+    return decodeURIComponent(new URL(req.url, `http://${req.headers.host}`).pathname);
+  } catch (e) {
+    return null;
+  }
+}
+
+const server = http.createServer(async (req, res) => {
+  const pathname = docPathname(req);
+  if (pathname === null || laDuongDanAn(pathname)) {
+    res.writeHead(404, { 'Content-Type': 'text/plain; charset=UTF-8' });
+    return res.end('404 Không tìm thấy tài nguyên');
+  }
+  if (await xuLyApiAI(req, res, pathname)) return;
+  return xuLyYeuCauGoc(req, res);
 });
 
 // Khởi chạy server

@@ -14,6 +14,7 @@ DROP TABLE IF EXISTS nhom_trieu_chung;
 DROP TABLE IF EXISTS danh_muc_benh;
 DROP TABLE IF EXISTS lich_su_chan_doan;
 DROP TABLE IF EXISTS nhat_ky_csdl;
+DROP TABLE IF EXISTS lich_su_hoi_ai;
 
 CREATE TABLE nhom_trieu_chung (
     ma_nhom VARCHAR(10) PRIMARY KEY,
@@ -83,6 +84,19 @@ CREATE TABLE nhat_ky_csdl (
     loai_thao_tac VARCHAR(20) NOT NULL,
     ten_bang VARCHAR(50) NOT NULL,
     chi_tiet NVARCHAR(255)
+);
+
+-- 8. BẢNG: lich_su_hoi_ai (Lịch sử các lần hỏi Trợ lý AI - ghi tự động bởi máy chủ)
+CREATE TABLE lich_su_hoi_ai (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    thoi_gian TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    loai VARCHAR(20) NOT NULL,            -- chan_doan | lich_su | tri_thuc
+    cau_hoi TEXT NOT NULL,
+    tra_loi TEXT,
+    tham_chieu_json TEXT,
+    thanh_cong INTEGER NOT NULL DEFAULT 1,
+    nha_cung_cap VARCHAR(20),
+    model VARCHAR(80)
 );
 
 -- ============================================================================

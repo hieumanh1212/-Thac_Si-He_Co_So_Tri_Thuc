@@ -33,6 +33,28 @@
     }
   }
 
+  function thoatHtml(giaTri) {
+    return String(giaTri === undefined || giaTri === null ? '' : giaTri)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  // Khối cảnh báo bắt buộc trên phiếu với phiên sinh từ Trợ lý AI
+  function taoKhoiCanhBaoAI(session) {
+    if (!session || session.nguon !== 'AI') return '';
+    const meta = session.aiMeta || {};
+    const nguonAI = [meta.nhaCungCap, meta.model].filter(Boolean).join(' / ') || 'không rõ';
+    return `
+        <div class="pdf-ai-warning">
+          <div class="pdf-ai-warning-title">⚠ PHIÊN CHẨN ĐOÁN ĐƯỢC SINH TỪ LỜI KỂ QUA AI (${thoatHtml(nguonAI)}). CẦN KIỂM SOÁT KỸ.</div>
+          <div>Các triệu chứng dưới đây do AI trích xuất từ lời kể${meta.daChinhSua ? ' (đã được người dùng chỉnh sửa)' : ''} và có thể sai sót.
+            Kết luận do động cơ suy diễn luật sinh tính trên các triệu chứng đó. Phiếu này KHÔNG phải chẩn đoán y khoa
+            và không thay thế thăm khám, xét nghiệm của bác sĩ.</div>
+          ${meta.cauHoi ? `<div class="pdf-ai-quote"><strong>Lời kể gốc:</strong> "${thoatHtml(meta.cauHoi)}"</div>` : ''}
+          ${meta.dienGiai ? `<div class="pdf-ai-quote"><strong>AI diễn giải:</strong> ${thoatHtml(meta.dienGiai)}</div>` : ''}
+        </div>`;
+  }
+
   function taoBaoCaoHTML(session, kb) {
     kb = kb || (typeof window !== 'undefined' && window.DEFAULT_KNOWLEDGE_BASE) || {};
     const symptomsKB = kb.symptoms || [];
@@ -160,6 +182,8 @@
           <h1>PHIẾU KẾT QUẢ SUY DIỄN CHẨN ĐOÁN LÂM SÀNG</h1>
           <p>Hệ thống tự động phân tích logic luật sinh & lượng giá xác suất tin cậy</p>
         </div>
+
+        ${taoKhoiCanhBaoAI(session)}
 
         <!-- THÔNG TIN TỔNG QUAN -->
         <div class="pdf-summary-grid">
@@ -289,6 +313,26 @@
       @page {
         size: A4;
         margin: 12mm 15mm;
+      }
+      .pdf-ai-warning {
+        border: 2px solid #dc2626;
+        background: #fef2f2;
+        color: #7f1d1d;
+        border-radius: 6px;
+        padding: 10px 12px;
+        margin: 10px 0 14px;
+        font-size: 12px;
+        line-height: 1.5;
+      }
+      .pdf-ai-warning-title {
+        font-weight: 800;
+        color: #dc2626;
+        margin-bottom: 4px;
+      }
+      .pdf-ai-quote {
+        margin-top: 6px;
+        font-style: italic;
+        color: #334155;
       }
       * {
         box-sizing: border-box;

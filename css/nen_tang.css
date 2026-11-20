@@ -3,18 +3,19 @@
    ========================================================================== */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
+/* Hệ thống chỉ dùng giao diện SÁNG: biến mặc định là màu sáng (trùng khối [data-theme="light"] bên dưới) */
 :root {
-  --bg-main: #0f172a;
-  --bg-card: #1e293b;
-  --bg-card-hover: #273549;
-  --bg-sidebar: #090e1a;
-  --bg-input: #0f172a;
-  --border-color: #334155;
-  --border-focus: #38bdf8;
-  
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  --bg-main: #f1f5f9;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f8fafc;
+  --bg-sidebar: #ffffff;
+  --bg-input: #ffffff;
+  --border-color: #cbd5e1;
+  --border-focus: #0284c7;
+
+  --text-primary: #0f172a;
+  --text-secondary: #1e293b;
+  --text-muted: #334155;
 
   --color-primary: #3b82f6;
   --color-primary-hover: #2563eb;
@@ -25,13 +26,13 @@
   --color-purple: #8b5cf6;
   --color-cyan: #06b6d4;
 
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.25);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
-  --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.25);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.12), 0 4px 6px -2px rgba(0, 0, 0, 0.08);
+  --shadow-glow: 0 0 15px rgba(2, 132, 199, 0.18);
 
-  --canvas-bg: #0b1120;
-  --canvas-grid: rgba(148, 163, 184, 0.15);
+  --canvas-bg: #ffffff;
+  --canvas-grid: rgba(100, 116, 139, 0.25);
 
   --radius-sm: 6px;
   --radius-md: 10px;

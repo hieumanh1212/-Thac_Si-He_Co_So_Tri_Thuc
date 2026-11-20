@@ -165,6 +165,8 @@ class TroLyAIController {
 
     this._hienDangXuLy("AI đang đọc lời kể và trích xuất triệu chứng...");
     try {
+      // Nạp lại tri thức mới nhất (chỉ đọc) -> danh mục triệu chứng & động cơ suy diễn luôn cập nhật
+      await this.kbManager.lamMoiTuCSDL();
       const ketQua = await this.dichVuAI.trichXuatTrieuChung(cauHoi, this.layDanhMucChoAI());
       this.cauHoi = cauHoi;
       this.thongTinAI = { nhaCungCap: ketQua.nhaCungCap, model: ketQua.model };

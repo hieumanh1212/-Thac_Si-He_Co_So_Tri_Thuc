@@ -77,6 +77,27 @@ class KnowledgeBaseManager {
     }
   }
 
+  /**
+   * Nạp lại tri thức MỚI NHẤT từ CSDL theo kiểu CHỈ ĐỌC (không ghi ngược xuống CSDL / localStorage).
+   * Dùng trước mỗi lần hỏi Trợ lý AI để AI luôn thấy bản ghi vừa thêm ở trang Quản lý tri thức.
+   * @returns {Promise<Object>} Tri thức hiện hành (giữ nguyên tri thức cũ nếu đọc CSDL thất bại)
+   */
+  async lamMoiTuCSDL() {
+    if (!this.db) return this.getKB();
+    try {
+      const dbKB = await this.db.toKnowledgeBaseObject();
+      if (dbKB && Array.isArray(dbKB.rules) && dbKB.rules.length > 0) {
+        const caKiemThu = this.getTestCases();
+        this.kb = this.sanitizeKB(this._mergeWithDefaults(dbKB, window.DEFAULT_KNOWLEDGE_BASE || {}));
+        this.kb.testCases = caKiemThu;
+        this.notifyListeners();
+      }
+    } catch (e) {
+      console.warn("Không nạp lại được tri thức từ CSDL, dùng tri thức hiện có:", e);
+    }
+    return this.getKB();
+  }
+
   _mergeWithDefaults(parsed, def) {
     if (!parsed || !def || !Array.isArray(parsed.rules)) return parsed;
 

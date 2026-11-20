@@ -33,7 +33,8 @@ const CAU_HINH_CHE_DO_HOI_DAP = {
       "Triệu chứng nào xuất hiện trong nhiều luật nhất?",
       "Luật nào có hệ số tin cậy cao nhất?"
     ],
-    goi: (dichVu, cauHoi, kb) => dichVu.traCuuTriThuc(cauHoi, [], kb)
+    // Nạp lại tri thức mới nhất từ CSDL (chỉ đọc) ngay trước khi hỏi
+    goi: async (dichVu, cauHoi, kbManager) => dichVu.traCuuTriThuc(cauHoi, [], await kbManager.lamMoiTuCSDL())
   }
 };
 
@@ -135,7 +136,7 @@ class HoiDapAIController {
     const cheDo = this.cheDo;
     this._datDangGui(true);
     try {
-      const ketQua = await CAU_HINH_CHE_DO_HOI_DAP[cheDo].goi(this.dichVuAI, cauHoi, this.kbManager.getKB());
+      const ketQua = await CAU_HINH_CHE_DO_HOI_DAP[cheDo].goi(this.dichVuAI, cauHoi, this.kbManager);
       this.ketQua[cheDo] = { cauHoi, traLoi: ketQua.traLoi || "(AI không trả lời)", thamChieu: ketQua.thamChieu || [] };
     } catch (e) {
       this.ketQua[cheDo] = { cauHoi, loi: e.message };
